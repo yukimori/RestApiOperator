@@ -1,0 +1,13 @@
+[client_config]
+host=localhost
+port=8080
+header={"Content-Type" : "application/json; charset=UTF-8","x-operator-id" : "hogehoge"}
+
+[id]
+regionId=1
+contractorId=myTestUser
+
+[testapi1]
+method=GET
+request_body={\"id\":\"${regionId}\"}
+path=/test/hoge?=contractorId=${contractorId}
