@@ -150,21 +150,11 @@ class RestApiManager():
         else:
             self.path = ""
 
-        if __debug__:
-            print "======= Request Parameter BEGIN ======="
-            self.showRequestParameter()
-            print "======= Request Parameter END ========="
+        self.showRequestParameter()
 
         response = self.connect(self.method, self.request_url,self.path,self.request_body,self.headers)
-        print "========== Response BEGIN =========="
-        print "HTTP STATUS:%s %s" % (response.status,response.reason)
-        body = response.read()
-        isFormatted = JsonUtil.printJsonFormatted(body)
-        if not isFormatted:
-            print "reponse body is not JSON:"
-            print body
-        print "========== Response END ============"
 
+        self.showResponse(response)
 
     def connect(self,method,url,path,body=None, headers={}):
         try:
@@ -178,14 +168,32 @@ class RestApiManager():
             print e
             traceback.print_exc()
 
+    def showResponse(self,response):
+        print ""
+        print "========= Response ========="
+        status = response.status
+        reason = response.reason
+        print "HTTP STATUS:%s %s" % (status,reason)
+        body = response.read()
+        isFormatted = JsonUtil.printJsonFormatted(body)
+        if not isFormatted:
+            print "reponse body is not JSON:"
+            print body
+        print "======== /Response ========="
+        print ""
+        return (status,reason,body)
+
     def showRequestParameter(self):
+        print ""
+        print "========= Request =========="
         print "request_url:" + self.request_url
         print "headers:" + str(self.headers)
         if(self.request_body != "" or self.request_body is None):
             print "isJsonFormat(request_body)?:" + str(JsonUtil.validateJson(self.request_body))
         print "request_body:" + self.request_body
-
         print "path:" + self.path
+        print "======== /Request =========="
+        print ""
 
 class JsonUtil():
 
