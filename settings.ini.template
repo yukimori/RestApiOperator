@@ -2,12 +2,19 @@
 host=localhost
 port=8080
 header={"Content-Type" : "application/json; charset=UTF-8","x-operator-id" : "hogehoge"}
+#proxy_url=http://192.168.91.254
+#proxy_port=8080
 
+#idはdeplicated
 [id]
 regionId=1
 contractorId=myTestUser
 
 [testapi1]
 method=GET
+#commondataに同じkeyがあれば値をcommondataより引き継ぐ。${}で引き継ぎたい値を明示的に引き継ぐこともできる
 request_body={\"id\":\"${regionId}\"}
 path=/test/hoge?=contractorId=${contractorId}
+#responseがjsonで返却されることを前提にresponsekeyで指定されたレスポンスの値をcommondatakeyの値に設定
+commondata_push={"reponsekey":"commondatakey"}
+
