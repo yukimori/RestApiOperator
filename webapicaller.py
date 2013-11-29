@@ -12,8 +12,10 @@ from string import Template
 import httpUtil
 from commondata import CommonData
 from loggingUtil import LoggingUtil
+import getopt
 
 CONFIG_FILE = os.path.dirname(os.path.abspath(__file__)) + "/settings.ini"
+TEST_CONFIG_FILE = os.path.dirname(os.path.abspath(__file__)) + "/settings.test.ini"
 PER_COMMONDATA = os.path.dirname(os.path.abspath(__file__)) + "/commondata.json"
 logger=LoggingUtil
 
@@ -21,26 +23,22 @@ logger=LoggingUtil
 if __debug__:
     print "isDebug:" + str(__debug__)
 
-class RestApiManager():
+class WebApiManager():
     def __init__(self, host=None, port=None, header=None):
 
-        #設定ファイルの読み込み
-        self.conf = ConfigParser.RawConfigParser()
-        #itemsを使うとオプション名が小文字に変換されてしまうため
-        self.conf.optionxform = str
-        self.conf.read(CONFIG_FILE)
+        #パラメータ取得
+        try:
+            shortopt = ""
+            longopt = ["test"]
+            self.opts, self.args = getopt.getopt(sys.argv[1:],shortopt,longopt)
+        except getopt.GetoptError:
+            #TODO エラー処理をもっとしっかり
+            print "parameter error"
+            self._usage()
+            exit()
 
-        #api_nameをセクション名のリストから構築する
-        self.api_select = self.readConfigApis()
-
-#        if __debug__:
-#            print "api_select:" + str(self.api_select) 
-
-        #ID情報を読み込む
-        self.ids = self.readConfigIds()
-
-        #クライアントの設定
-        self.setConfigClient()
+        #設定
+        self._set_config()
 
         #コンストラクタの引数で設定された場合はそれが優先される
         if not host is None:
@@ -51,21 +49,31 @@ class RestApiManager():
         #リクエストURLはホストとポートから作成する
         self.request_url = self.host + ":" + self.port
 
-        if __debug__:
-            print "url:" + self.request_url
-            print "header:" + str(self.headers)
-
         #commondataの生成
         self.common = CommonData(PER_COMMONDATA)
 
-    def set_config(self):
+    def _usage(self):
+        print "[python] ./weapicaller.py [--test] "
+        print "--test settings.test.iniを用いる"
+
+    def _set_config(self):
         #設定ファイルの読み込み
         self.conf = ConfigParser.RawConfigParser()
         #itemsを使うとオプション名が小文字に変換されてしまうため
         self.conf.optionxform = str
 
-        self.conf.read(CONFIG_FILE)
+        self.config_file = None
+        for key,value in self.opts:
+            if (key == "--test"):
+                logger.debug("use TEST_CONFIG")
+                self.config_file = TEST_CONFIG_FILE
 
+        if self.config_file is None:
+            logger.debug("use REGULAR CONFIG")
+            self.config_file = CONFIG_FILE
+
+        self.conf.read(self.config_file)
+                
         #api_nameをセクション名のリストから構築する
         self.api_select = self.readConfigApis()
 
@@ -78,9 +86,8 @@ class RestApiManager():
         #リクエストURLはホストとポートから作成する
         self.request_url = self.host + ":" + self.port
 
-        if __debug__:
-            print "url:" + self.request_url
-            print "header:" + str(self.headers)
+        logger.debug("url : %s" % self.request_url)
+        logger.debug("header : %s " % str(self.headers))
         
 
     def main(self):
@@ -261,10 +268,7 @@ class RestApiManager():
 
     def connect(self,method,url,path,body=None, headers={}):
         try:
-#            conn = httplib.HTTPConnection(url)
-#            conn.request(method, path, body, headers)
-#            response = conn.getresponse()
-            
+            #FIXME 設定の方へ移動するべき
             if(self.conf.has_option("client_config","proxy_url") and 
                self.conf.has_option("client_config","proxy_port")):
                 self.proxy_url = self.conf.get("client_config", "proxy_url")
@@ -341,5 +345,5 @@ class JsonUtil():
 if __name__ == '__main__':
             
 #    rm = RestApiManager(host="10.14.41.121",port="80")
-    rm = RestApiManager()
-    rm.main()
+    manager = WebApiManager()
+    manager.main()

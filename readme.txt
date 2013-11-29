@@ -1,5 +1,11 @@
-* proxy_url,portを設定するとproxy経由でアクセスする
-* comondataの能力は以下の通り
-** commondataはrequest_bodyで変数に指定すると変換する
-** commondata.keyと同等のreqeust_body.keyがあると、値をcommondataに格納している値にしてくれる
+- dummyServerの使い方
+dummyServer/ocapiDummyServer.pyを起動させる。
+webapicaller.pyをテストモードで起動する。
+loginを呼び出す。loginしか現在の設定に対応していないため（ocapiDummyServer.pyを変更すれば他も使えるようになる）
+
+- proxy_url,portを設定するとproxy経由でアクセスする
+
+- comondataの能力は以下の通り
+commondataはrequest_bodyで変数に指定すると変換する
+commondata.keyと同等のreqeust_body.keyがあると、値をcommondataに格納している値にしてくれる
 
