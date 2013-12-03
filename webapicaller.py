@@ -23,6 +23,9 @@ logger=LoggingUtil
 if __debug__:
     print "isDebug:" + str(__debug__)
 
+#TODO 指定したapiの前後に任意のapiを実行できるようにする
+#TODO 認証に対応する
+#TODO apiが多くなったときに表示できない。表示方法に工夫が必要
 class WebApiManager():
     def __init__(self, host=None, port=None, header=None):
 
@@ -32,7 +35,7 @@ class WebApiManager():
             longopt = ["test"]
             self.opts, self.args = getopt.getopt(sys.argv[1:],shortopt,longopt)
         except getopt.GetoptError:
-            #TODO エラー処理をもっとしっかり
+            #TODO エラー処理
             print "parameter error"
             self._usage()
             exit()
@@ -54,7 +57,7 @@ class WebApiManager():
 
     def _usage(self):
         print "[python] ./weapicaller.py [--test] "
-        print "--test settings.test.iniを用いる"
+        print "--test 設定ファイルとしてsettings.test.iniを利用する"
 
     def _set_config(self):
         #設定ファイルの読み込み
@@ -132,7 +135,9 @@ class WebApiManager():
                     
                 self.api_name = self.api_select[int(number)]
                 logger.info("execute api:%s",self.api_name)
-                self.request4SyncAPI(self.api_name)
+#                self.request4SyncAPI(self.api_name)
+                #beforeの導入によりこちらを実行する
+                self.execute_request(self.api_name)
 
             self.before_finish()
 
@@ -140,7 +145,7 @@ class WebApiManager():
             print e
             traceback.print_exc()
 
-            logger.error("[ERROR] some error occurs, but rerun this program...")
+            logger.error("some error occurs, so restart the program.")
 
             self.main()
 
@@ -159,7 +164,7 @@ class WebApiManager():
 
     #標準入力からcommondataを設定する
     def set_commondata_from_stdin(self):
-        print "key:value:type(str|int|float)"
+        print "key:value:type(str|int|long)"
         line = sys.stdin.readline()
         line = line.rstrip()
         data = line.split(":")
@@ -221,7 +226,23 @@ class WebApiManager():
     def setHeaders(self,headers):
         self.headers = headers
 
+    #APIを実行するラッパー
+    def execute_request(self, api_name):
+        self.execute_before_request(api_name)
+        self.request4SyncAPI(api_name)
+
+    #指定されたAPI名のbeforeに定義されたAPIを実行する
+    def execute_before_request(self, api_name):
+        try:
+        #api_nameからbeforeに設定されたリクエスト名を取得する
+            self.before_method = self.conf.get(api_name, "before")
+            logger.info("execute Before Reqeust : %s",self.before_method)
+            self.request4SyncAPI(self.before_method)
+        except Exception,e:
+            print e
+
     def request4SyncAPI(self, api_name):
+
         self.method = self.conf.get(api_name, "method")
         #request_bodyの構築と変数の整形
         if(self.conf.has_option(api_name,"request_body")):
