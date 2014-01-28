@@ -121,7 +121,7 @@ class WebApiManager():
                     continue
                 if number == "r":
                     #設定ファイルの再読み込み
-                    self.set_config()
+                    self._set_config()
                     continue
                 if not number:
                     print "[WARNING] wrong select"
