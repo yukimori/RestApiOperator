@@ -207,7 +207,8 @@ class WebApiManager():
         ids = dict(ids)
         if __debug__:
 #            isFormatted = JsonUtil.printJsonFormatted(ids)
-            print "id:" + str(ids)
+#            print "id:" + str(ids)
+            logger.info("id: %s",str(ids))
         return ids
 
     def showApiSelection(self):

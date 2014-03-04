@@ -17,18 +17,12 @@ class LoggingUtil(object):
     logging.config.fileConfig(DEFAULT_PROP_PATH)
     logger = logging.getLogger('top.mid')
 
-    debug = functools.partial(
-        logger.debug)
-    info = functools.partial(
-        logger.info)
-    warn = functools.partial(
-        logger.warning)
-    error = functools.partial(
-        logger.error)
-    critical = functools.partial(
-        logger.critical)
-    exception = functools.partial(
-        logger.exception)
+    debug = functools.partial(logger.debug)
+    info = functools.partial(logger.info)
+    warn = functools.partial(logger.warning)
+    error = functools.partial(logger.error)
+    critical = functools.partial(logger.critical)
+    exception = functools.partial(logger.exception)
 
     @classmethod
     def accessDecolator(cls,f):
