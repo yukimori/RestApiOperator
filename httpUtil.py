@@ -50,7 +50,7 @@ def request_with_httpproxy(proxy_url,proxy_port,host,method,path,params,headers)
 
 def request(protocol,host, method, path, body, headers):
 
-    print "body" + body
+#    print "body:" + body
 
     uri = protocol+"://"+host+path
     request = urllib2.Request(uri, body, headers)
